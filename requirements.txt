@@ -5,3 +5,11 @@ python-dotenv
 langchain
 langchain-community
 langchain-openai
+
+pymupdf
+spacy
+tiktoken
+chromadb
+
+chainlit
+wikipedia
