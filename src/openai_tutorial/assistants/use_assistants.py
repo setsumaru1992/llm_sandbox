@@ -7,7 +7,7 @@ load_dotenv()
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-assistant_id = "asst_P6XbH3fJENBvfabp46WCVsbJ" # None
+assistant_id = os.getenv("ASSISTANT_ID_OF_USE_ASSISTANT")
 if assistant_id == None:
     assistant = client.beta.assistants.create(
         name="Math Tutor",
@@ -18,7 +18,7 @@ if assistant_id == None:
     print(assistant.id)
     assistant_id = assistant.id
 
-thread_id = "thread_aeE1lrBg3cmHDECnigAk5yOP" # None
+thread_id = None
 if thread_id == None:
     thread = client.beta.threads.create()
     print("thread_id: " + thread.id)
@@ -57,8 +57,8 @@ for message in message_obj.data:
 # print(message_obj)
 # SyncCursorPage[ThreadMessage](data=[
 #   ThreadMessage(
-#       id='msg_A5OOo1rEXUdCVC6kecmfjQdU', assistant_id='asst_P6XbH3fJENBvfabp46WCVsbJ',
+#       id='msg_A5OOo1rEXUdCVC6kecmfjQdU', assistant_id='...',
 #       content=[MessageContentText(text=Text(annotations=[], value="Is there anything else you'd like to solve or any other question I can assist you with?"), type='text')],
-#       created_at=1708786748, file_ids=[], metadata={}, object='thread.message', role='assistant', run_id='run_QQpCvIdnryeyvFAb4IX4gJ1P', thread_id='thread_aeE1lrBg3cmHDECnigAk5yOP'),
+#       created_at=1708786748, file_ids=[], metadata={}, object='thread.message', role='assistant', run_id='run_QQpCvIdnryeyvFAb4IX4gJ1P', thread_id='...'),
 #   ThreadMessage(id=...,
 #   object='list', first_id='msg_A5OOo1rEXUdCVC6kecmfjQdU', last_id='msg_cDDCWAkOIah9ThmuLPmZFuzx', has_more=False)

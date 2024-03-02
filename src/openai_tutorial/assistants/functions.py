@@ -1,5 +1,7 @@
 import os
 import time
+import json
+from pprint import pprint
 from dotenv import load_dotenv
 from openai import OpenAI
 
@@ -43,14 +45,21 @@ def fuga(a, b):
     print(b)
 
 
-def ask_to_assistant(ask_message, assistant_id, thread_id):
-    client.beta.threads.messages.create(
-        thread_id=thread_id,
-        role="user",
-        content=ask_message,
-    )
-    invoke_run(assistant_id, thread_id)
+def ask_to_assistant(ask_message_content, assistant_id, existing_thread_id = None, **run_params):
+    message = {
+        "role": "user",
+        "content": ask_message_content,
+    }
+    if existing_thread_id is not None:
+        thread_id = existing_thread_id
+        client.beta.threads.messages.create(
+            thread_id=thread_id,
+            **message,
+        )
+    else:
+        thread_id = fetch_existing_or_created_thread_id(None, messages=[message])
 
+    invoke_run(assistant_id, thread_id, run_params)
     assistant_response_messages = client.beta.threads.messages.list(thread_id=thread_id).data
     return assistant_response_messages
 
@@ -65,19 +74,40 @@ def build_print_content_from_assistant_message(message):
     return message.role + ": " + message.content[0].text.value
 
 
-def invoke_run(assistant_id, thread_id):
+def invoke_run(assistant_id, thread_id, run_params):
     started_run = client.beta.threads.runs.create(
         thread_id=thread_id,
         assistant_id=assistant_id,
     )
+    ask_run_status_count = 0
     while True:
         run = client.beta.threads.runs.retrieve(thread_id=thread_id,run_id=started_run.id)
+
+        ask_run_status_count += 1
+        if ask_run_status_count % 10 == 0:
+            print(f"wait response in {run.status}...")
+
         if run.status in ["queued", "in_progress", "cancelling"]:
-            time.sleep(0.1)
+            time.sleep(0.5)
         elif run.status == "completed":
             break
         elif run.status == "requires_action":
-            # Handle tool calls (see below)
+            tool_calls = run.required_action.submit_tool_outputs.tool_calls
+            for tool_call in tool_calls:
+                function = run_params["available_functions"][tool_call.function.name]
+                arguments = json.loads(tool_call.function.arguments)
+
+                client.beta.threads.runs.submit_tool_outputs(
+                    thread_id=thread_id,
+                    run_id=started_run.id,
+                    tool_outputs=[{
+                        "tool_call_id": tool_call.id,
+                        "output": function(**arguments)
+                    }]
+                )
+                print(f"func call: {tool_call.function.name}(#**{arguments})")
             pass
         elif run.status in ["cancelled", "failed", "expired"]:
             break
+        else:
+            pass

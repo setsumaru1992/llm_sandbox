@@ -5,7 +5,6 @@ from functions import (
     openai_client,
     fetch_existing_or_create_assistant_id,
     fetch_existing_or_created_file_id,
-    fetch_existing_or_created_thread_id,
     ask_to_assistant,
     print_assistant_messages,
 )
@@ -13,14 +12,14 @@ from functions import (
 client = openai_client()
 
 knowledge_file_id = fetch_existing_or_created_file_id(
-    "file-7DvSAsi1wgwTFnMHr6iOm4oJ",
+    os.getenv("FILE_ID_OF_USE_RERIEVAL"),
     file=open(os.path.dirname(__file__) + "/飛行車.pdf", "rb"),
     purpose="assistants"
 )
 
 assistant_id = fetch_existing_or_create_assistant_id(
-    "asst_4jkGW9YVvVfcljue1zLO2UZZ",
-    name="Flying car expart",
+    os.getenv("ASSISTANT_ID_OF_USE_RERIEVAL"),
+    name="Flying car expert",
     description="飛行車についてドキュメントに基づいた知識に基づいて回答するエキスパート",
     model="gpt-4-1106-preview",
     instructions="あなたは新製品「飛行車」について詳しいアシスタントです。飛行車の教材を参考にして回答してください",
@@ -28,12 +27,7 @@ assistant_id = fetch_existing_or_create_assistant_id(
     file_ids=[knowledge_file_id],
 )
 
-thread_id = fetch_existing_or_created_thread_id(
-    "thread_XszANbPysl6fe7L4McUHRkPr",
-    messages=[]
-)
-
-messages = ask_to_assistant("飛行車の最高速度は？", assistant_id, thread_id)
+messages = ask_to_assistant("飛行車の最高速度は？", assistant_id)
 print_assistant_messages(messages)
 
 # assistant: 飛行車の最高速度は、都市部では時速150キロメートル、都市部以外の地域では時速250キロメートルと制限されています【7†source】。
