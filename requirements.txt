@@ -1,6 +1,11 @@
 # パッケージ更新は `pip3 install -r requirements.txt`で行う
-openai
 python-dotenv
+
+openai
+
+pandas
+matplotlib
+scipy
 
 langchain
 langchain-community

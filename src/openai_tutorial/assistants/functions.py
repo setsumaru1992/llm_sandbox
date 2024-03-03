@@ -105,7 +105,7 @@ def invoke_run(assistant_id, thread_id, run_params):
                         "output": function(**arguments)
                     }]
                 )
-                print(f"func call: {tool_call.function.name}(#**{arguments})")
+                print(f"func call: {tool_call.function.name}(**{arguments})")
             pass
         elif run.status in ["cancelled", "failed", "expired"]:
             break
